@@ -1,0 +1,210 @@
+.bashrc file---------------------------------------------
+
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+# User specific aliases and functions
+
+export JAVA_HOME=/usr/local/java
+export PATH=$PATH:$JAVA_HOME/bin
+
+export HADOOP_HOME=/usr/local/hadoop-2.6.0
+export PATH=$PATH:$HADOOP_HOME/bin
+
+export FLUME_HOME=/usr/local/flume
+
+export PIG_INSTALL=/usr/local/pig
+
+export HIVE_HOME=/usr/local/hive
+export PATH=$HIVE_HOME/bin:$PATH
+export HADOOP_USER_CLASSPATH_FIRST=true
+
+export HBASE_HOME=/usr/local/hbase
+
+export SQOOP_HOME=/usr/local/sqoop
+
+export OOZIE_HOME=/usr/local/oozie-4.1.0
+
+export PATH=$PATH:$FLUME_HOME/bin:$PIG_INSTALL/bin:$HIVE_HOME/bin:$HBASE_HOME/bin:$SQOOP_HOME/bin:$HADOOP_HOME/sbin:/$OOZIE_HOME/bin
+
+
+
+
+Flume configuration file --------------------------------------------
+
+[acadgild@localhost ~]$ cat /usr/local/flume/conf/flume.conf
+TwitterAgent.sources = Twitter 
+TwitterAgent.channels = MemChannel 
+TwitterAgent.sinks = HDFS
+  
+# Describing/Configuring the source 
+TwitterAgent.sources.Twitter.type = org.apache.flume.source.twitter.TwitterSource
+TwitterAgent.sources.Twitter.consumerKey=UGx6rIsZm94iCSF4OYPzSNRjU
+TwitterAgent.sources.Twitter.consumerSecret=KWhryoLbmFdrFvJO2y889ELyznnKtfFiIX6aAXeuEES7QYhRJm
+TwitterAgent.sources.Twitter.accessToken=89202815-bLPxgPjX2ObJQLm0n4x9mxYNwCfJQEt6fsPJDah05
+TwitterAgent.sources.Twitter.accessTokenSecret=	aObienMESIfi8KF0BqmsSPylMHK2stJY6uyriZej2h5yL
+TwitterAgent.sources.Twitter.keywords=hadoop, bigdata, mapreduce, mahout, hbase, nosql
+# Describing/Configuring the sink 
+
+TwitterAgent.sources.Twitter.keywords= hadoop,election,sports,cricket,Big data,celebrity,bollywood,politics
+
+TwitterAgent.sinks.HDFS.channel=MemChannel
+TwitterAgent.sinks.HDFS.type=hdfs
+TwitterAgent.sinks.HDFS.hdfs.path=hdfs://localhost:9000/user/flume/tweets
+TwitterAgent.sinks.HDFS.hdfs.fileType=DataStream
+TwitterAgent.sinks.HDFS.hdfs.writeformat=Text
+TwitterAgent.sinks.HDFS.hdfs.batchSize=1000
+TwitterAgent.sinks.HDFS.hdfs.rollSize=0
+TwitterAgent.sinks.HDFS.hdfs.rollCount=10000
+TwitterAgent.sinks.HDFS.hdfs.rollInterval=600
+
+TwitterAgent.channels.MemChannel.type=memory
+TwitterAgent.channels.MemChannel.capacity=10000
+TwitterAgent.channels.MemChannel.transactionCapacity=1000
+
+TwitterAgent.sources.Twitter.channels = MemChannel
+TwitterAgent.sinks.HDFS.channel = MemChannel
+[acadgild@localhost ~]$ 
+
+
+
+HDFS repository -----------------------------------------------
+
+[acadgild@localhost ~]$ 
+[acadgild@localhost ~]$ hdfs dfs -ls /user/flume
+17/06/16 10:53:34 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Found 1 items
+drwxr-xr-x   - acadgild supergroup          0 2017-06-15 04:41 /user/flume/tweets
+[acadgild@localhost ~]$ 
+
+
+
+Command execution ----------------------------------
+
+[acadgild@localhost ~]$ flume-ng agent -n TwitterAgent -f /usr/local/flume/conf/flume.conf
+
+
+17/06/27 23:53:06 INFO twitter4j.TwitterStreamImpl: Waiting for 250 milliseconds
+17/06/27 23:53:06 INFO twitter4j.TwitterStreamImpl: Establishing connection.
+17/06/27 23:53:08 INFO twitter4j.TwitterStreamImpl: Connection established.
+17/06/27 23:53:08 INFO twitter4j.TwitterStreamImpl: Receiving status stream.
+17/06/27 23:53:11 INFO twitter.TwitterSource: Processed 500 docs
+17/06/27 23:53:14 INFO twitter.TwitterSource: Processed 600 docs
+17/06/27 23:53:16 INFO twitter.TwitterSource: Processed 700 docs
+17/06/27 23:53:20 INFO twitter.TwitterSource: Processed 800 docs
+17/06/27 23:53:21 INFO twitter.TwitterSource: Processed 900 docs
+17/06/27 23:53:22 INFO twitter.TwitterSource: Processed 1,000 docs
+17/06/27 23:53:22 INFO twitter.TwitterSource: Total docs indexed: 1,000, total skipped docs: 0
+17/06/27 23:53:22 INFO twitter.TwitterSource:     26 docs/second
+17/06/27 23:53:22 INFO twitter.TwitterSource: Run took 38 seconds and processed:
+17/06/27 23:53:22 INFO twitter.TwitterSource:     0.007 MB/sec sent to index
+17/06/27 23:53:22 INFO twitter.TwitterSource:     0.26 MB text sent to index
+17/06/27 23:53:22 INFO twitter.TwitterSource: There were 0 exceptions ignored: 
+17/06/27 23:53:26 INFO twitter.TwitterSource: Processed 1,100 docs
+^C17/06/27 23:53:30 INFO lifecycle.LifecycleSupervisor: Stopping lifecycle supervisor 10
+17/06/27 23:53:30 INFO instrumentation.MonitoredCounterGroup: Component type: CHANNEL, name: MemChannel stopped
+17/06/27 23:53:30 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: CHANNEL, name: MemChannel. channel.start.time == 1498587763942
+17/06/27 23:53:30 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: CHANNEL, name: MemChannel. channel.stop.time == 1498587810905
+17/06/27 23:53:30 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: CHANNEL, name: MemChannel. channel.capacity == 10000
+17/06/27 23:53:30 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: CHANNEL, name: MemChannel. channel.current.size == 0
+17/06/27 23:53:30 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: CHANNEL, name: MemChannel. channel.event.put.attempt == 28
+17/06/27 23:53:30 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: CHANNEL, name: MemChannel. channel.event.put.success == 28
+17/06/27 23:53:30 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: CHANNEL, name: MemChannel. channel.event.take.attempt == 33
+17/06/27 23:53:30 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: CHANNEL, name: MemChannel. channel.event.take.success == 5
+17/06/27 23:53:30 ERROR hdfs.HDFSEventSink: process failed
+java.lang.InterruptedException: Timed out before HDFS call was made. Your hdfs.callTimeout might be set too low or HDFS calls are taking too long.
+	at org.apache.flume.sink.hdfs.BucketWriter.checkAndThrowInterruptedException(BucketWriter.java:660)
+	at org.apache.flume.sink.hdfs.BucketWriter.flush(BucketWriter.java:419)
+	at org.apache.flume.sink.hdfs.HDFSEventSink.process(HDFSEventSink.java:442)
+	at org.apache.flume.sink.DefaultSinkProcessor.process(DefaultSinkProcessor.java:68)
+	at org.apache.flume.SinkRunner$PollingRunner.run(SinkRunner.java:147)
+	at java.lang.Thread.run(Thread.java:745)
+17/06/27 23:53:30 ERROR flume.SinkRunner: Unable to deliver event. Exception follows.
+org.apache.flume.EventDeliveryException: java.lang.InterruptedException: Timed out before HDFS call was made. Your hdfs.callTimeout might be set too low or HDFS calls are taking too long.
+	at org.apache.flume.sink.hdfs.HDFSEventSink.process(HDFSEventSink.java:463)
+	at org.apache.flume.sink.DefaultSinkProcessor.process(DefaultSinkProcessor.java:68)
+	at org.apache.flume.SinkRunner$PollingRunner.run(SinkRunner.java:147)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.lang.InterruptedException: Timed out before HDFS call was made. Your hdfs.callTimeout might be set too low or HDFS calls are taking too long.
+	at org.apache.flume.sink.hdfs.BucketWriter.checkAndThrowInterruptedException(BucketWriter.java:660)
+	at org.apache.flume.sink.hdfs.BucketWriter.flush(BucketWriter.java:419)
+	at org.apache.flume.sink.hdfs.HDFSEventSink.process(HDFSEventSink.java:442)
+	... 3 more
+^C17/06/27 23:53:35 INFO hdfs.HDFSEventSink: Closing hdfs://localhost:9000/user/flume/tweets/FlumeData
+17/06/27 23:53:35 INFO hdfs.BucketWriter: Closing hdfs://localhost:9000/user/flume/tweets/FlumeData.1498587767991.tmp
+17/06/27 23:53:35 INFO hdfs.BucketWriter: Renaming hdfs://localhost:9000/user/flume/tweets/FlumeData.1498587767991.tmp to hdfs://localhost:9000/user/flume/tweets/FlumeData.1498587767991
+17/06/27 23:53:35 INFO instrumentation.MonitoredCounterGroup: Component type: SINK, name: HDFS stopped
+17/06/27 23:53:35 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: SINK, name: HDFS. sink.start.time == 1498587763953
+17/06/27 23:53:35 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: SINK, name: HDFS. sink.stop.time == 1498587815997
+17/06/27 23:53:35 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: SINK, name: HDFS. sink.batch.complete == 0
+17/06/27 23:53:35 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: SINK, name: HDFS. sink.batch.empty == 2
+17/06/27 23:53:35 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: SINK, name: HDFS. sink.batch.underflow == 3
+17/06/27 23:53:35 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: SINK, name: HDFS. sink.connection.closed.count == 1
+17/06/27 23:53:35 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: SINK, name: HDFS. sink.connection.creation.count == 1
+17/06/27 23:53:35 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: SINK, name: HDFS. sink.connection.failed.count == 0
+17/06/27 23:53:35 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: SINK, name: HDFS. sink.event.drain.attempt == 28
+17/06/27 23:53:35 INFO instrumentation.MonitoredCounterGroup: Shutdown Metric for type: SINK, name: HDFS. sink.event.drain.sucess == 5
+17/06/27 23:53:35 INFO node.PollingPropertiesFileConfigurationProvider: Configuration provider stopping
+17/06/27 23:53:36 INFO twitter.TwitterSource: Twitter source Twitter stopping...
+17/06/27 23:53:36 INFO twitter4j.TwitterStreamImpl: Inflater has been closed
+17/06/27 23:53:36 ERROR twitter.TwitterSource: Exception while streaming tweets
+java.lang.NullPointerException: Inflater has been closed
+	at java.util.zip.Inflater.ensureOpen(Inflater.java:389)
+	at java.util.zip.Inflater.inflate(Inflater.java:257)
+	at java.util.zip.InflaterInputStream.read(InflaterInputStream.java:152)
+	at java.util.zip.GZIPInputStream.read(GZIPInputStream.java:117)
+	at sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:284)
+	at sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:326)
+	at sun.nio.cs.StreamDecoder.read(StreamDecoder.java:178)
+	at java.io.InputStreamReader.read(InputStreamReader.java:184)
+	at java.io.BufferedReader.fill(BufferedReader.java:161)
+	at java.io.BufferedReader.readLine(BufferedReader.java:324)
+	at java.io.BufferedReader.readLine(BufferedReader.java:389)
+	at twitter4j.StatusStreamBase.handleNextElement(StatusStreamBase.java:85)
+	at twitter4j.StatusStreamImpl.next(StatusStreamImpl.java:57)
+	at twitter4j.TwitterStreamImpl$TwitterStreamConsumer.run(TwitterStreamImpl.java:478)
+17/06/27 23:53:36 INFO twitter.TwitterSource: Twitter source Twitter stopped.
+
+
+Files----------------------------
+
+[acadgild@localhost ~]$ 
+[acadgild@localhost ~]$ hdfs dfs -ls /user/flume/tweets
+17/06/27 23:54:29 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Found 1 items
+-rw-r--r--   1 acadgild supergroup     476785 2017-06-27 23:53 /user/flume/tweets/FlumeData.1498587767991
+[acadgild@localhost ~]$ 
+
+
+DATA---------------------------------------------
+
+
+y?�#�
+{"type":"record","name":"Doc","doc":"adoc","fields":[{"name":"id","type":"string"},{"name":"user_friends_count","type":["int","null"]},{"name":"user_location","type":["string","null"]},{"name":"user_description","type":["string","null"]},{"name":"user_statuses_count","type":["int","null"]},{"name":"user_followers_count","type":["int","null"]},{"name":"user_name","type":["string","null"]},{"name":"user_screen_name","type":["string","null"]},{"name":"created_at","type":["string","null"]},{"name":"text","type":["string","null"]},{"name":"retweet_count","type":["long","null"]},{"name":"retweeted","type":["boolean","null"]},{"name":"in_reply_to_user_id","type":["long","null"]},{"name":"source","type":["string","null"]},{"name":"in_reply_to_status_id","type":["long","null"]},{"name":"media_url_https","type":["string","null"]},{"name":"expanded_url","type":["string","null"]}]}�[N��"�=���é�^$�l$879767347803729920�$おだいばこ→�！ゆーや！【雑多垢】＊女体化、推しは受け 🎤北斗宗翠 🍁左京(秋箱) ⚠️お別れはB→B解またはBでお願いします⚠️ツイプロ必読【http://twpf.jp/_you_ya__ 】���ゆーや_you_ya__(2017-06-27T23:54:15Zいや寝ろ؛��
+       �<a href="http://twitter.com/download/iphone" rel="nofollow">Twitter for iPhone</a>������ǵ$879767347820601344(@난왜 술먹어도 물안먹지V보면 물 마시라고 해주세요 제발�L("ㅋ ㅣㄹㄷ ㅏFF14_kdrb(2017-06-27T23:54:15Z�@ff14_batuan 크으 스윗달링 ㅠㅠ에스냥은 ㅋㅋㅋㅋ그게 또 기분 존나좋으니까 시발 또 이쁜짓하네 싶어서 ㅋㅋㅋㅋ고개돌려서 에잇 기분이다 하고 니드입술에 뽀뽀해줌 좋겠어요 ㅎ 뒤에 손 닿으면 다리 벌려줗거같구 ㅎ������ۢ�<a href="http://twitter.com/download/android" rel="nofollow">Twitter for Android</a>������ǵ$879767347824689152��Junior at Western Oregon University! Enjoying life the way it is being handed to me and making everything into a good day!�g�Blake Lorentzblakelorentz(2017-06-27T23:54:15Z�RT @NBA: 2017 #KiaMVP @russwest44 accepts his new hardware and has some special THANK YOUs at the #NBAAwards #ThisIsWhyWePlay https://t.co/…�<a href="http://twitter.com/download/iphone" rel="nofollow">Twitter for iPhone</a>$879767347828895744�
+                                                                                                            �LoL Overwatch Steam Hearthstone  R6S RWBY　いろんなゲームをやってLoLに戻る ADCやります　PUBGを買おうか迷っている　POEもやりたい���	
+                                                                                                                        ニグNigg0826(2017-06-27T23:54:15Zf新キャラ壁の中歩けるのやばいでしょt<a href="http://janetter.net/" rel="nofollow">Janetter</a>$879767347812196352l�J<*∀二階堂高嗣∀feel8include(2017-06-27T23:54:15Z�アイドルグループJuice=Juice メンバー内で暴行事件？ https://t.co/2tWTGCp8v0|<a href="http://twittbot.net/" rel="nofollow">twittbot.net</a>$879767347812212736l�藤ヶ谷太輔   めっちゃ好き好き！！ 仕事は都内某企業でOL(受付)やってます(*≧∀≦*) 相互フォロー歓迎です(_ _) よろしくお願いします(・∀・)�(,,▽ 藤ヶ谷太輔▽effective2coun1(2017-06-27T23:54:15Z�あなたの彼氏は当てはまってる？なぜかモテる男性が持つ3つの特徴 https://t.co/seU9U7bYty|<a href="http://twittbot.net/" rel="nofollow">twittbot.net</a>$879767347812323330�on earth work hard�O�gals  galsemaka1977(2017-06-27T23:54:15Z�RT @LeeJay54: @TimesLIVE One of the most ghastly scams. Preying on the most vulnerable. Hope the perpetrators are caught soon!�<a href="http://twitter.com/download/android" rel="nofollow">Twitter for Android</a>$879767347812339716� Harmonia, Canoas<o tempo é rei! 994054134 😘��*Bruna Lehnen 👸🏻buialehnen(2017-06-27T23:54:15ZfRT @Wesleynegr1: @buialehnen Sou gato, mas não mio�<a href="http://twitter.com/download/iphone" rel="nofollow">Twitter for iPhone</a>$879767347816415233�	
+India�Indian; Soldier; Tanker, Thinker; News Addict & Yes,
+I do have a View too! My OWN ...�_�
+                                   rvnKMRRavinKmr(2017-06-27T23:54:15Z�@rajendrabhaduri @tavleen_singh Well as a hindu who is neutrl 2 all othr religns i dont appre dis darn womn postng… https://t.co/NF7BKxpfMlȑ�O�<a href="http://twitter.com/download/android" rel="nofollow">Twitter for Android</a>���ђ�ǵ$8797673477912535044アーカイブID : 457311�鉄道模型/コスプレ/女装�子/カクテル/ギター/阪神タイガース/お絵描き修行中
+ $こんぶ梅雨雨STvintagewhite(2017-06-27T23:54:15Z�RT @trademark_bot: [商願2017-74288]
+商標:[画像] (標準文字) /
+出願人:鳥取県 /
+出願日:2017年6月2日 /
+区分:35(観光に関する宣伝活動の企画・運営又は開催ほか),39(企画旅行の実施ほか),43(宿泊施設の提供ほか) http…�<a href="http://twitter.com/download/iphone" rel="nofollow">Twitter for iPhone</a>$879767347812343809�&toastbait™.probs the #2 heath stan�W�jillheathsclickbait(2017-06-27T23:54:15Z�RT @DAVlDIZED: rt to be in richbait™
+-mbf me or have dms open
+-don't die
+-be lit
+-stay alive !!!
+-have fun
+(making it at 15+ rts)�<a href="http://twitter.com/download/iphone" rel="nofollow">Twitter for iPhone</a>$879767347799707648�Hجمهوری اسلامی ایران��*مهدی ممبینیmombeini__m(2017-06-27T23:54:15Z�@NrzNima خوزستان طی 10 روز گذشته، شدیدترین دوران تنش آبی خودش رو تجربه کرد. این وضعیت ادامه دارد...
+
+
+
+====================================================================================================
+
+
